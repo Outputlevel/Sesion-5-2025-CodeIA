@@ -1,0 +1,1053 @@
+{
+  "info": {
+    "_postman_id": "12345678-1234-1234-1234-123456789012",
+    "name": "Restaurantes API",
+    "description": "Colección de pruebas para el sistema de gestión de restaurantes",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "12345678"
+  },
+  "item": [
+    {
+      "name": "Restaurantes",
+      "item": [
+        {
+          "name": "Listar Restaurantes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response tiene estructura correcta', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('success', true);",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData).to.have.property('pagination');",
+                  "});",
+                  "",
+                  "pm.test('Datos de restaurantes son un array', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});",
+                  "",
+                  "// Guardar ID del primer restaurante para pruebas posteriores",
+                  "if (pm.response.json().data.length > 0) {",
+                  "    pm.environment.set('restaurantId', pm.response.json().data[0].id);",
+                  "    pm.environment.set('restaurantName', pm.response.json().data[0].name);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/restaurants?page=1&limit=20&status=active",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "restaurants"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "disabled": false
+                },
+                {
+                  "key": "status",
+                  "value": "active",
+                  "disabled": false
+                },
+                {
+                  "key": "city",
+                  "value": "Madrid",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "pizza",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Obtiene la lista de restaurantes activos con paginación y filtros opcionales"
+          },
+          "response": [
+            {
+              "name": "200 - Listar Restaurantes Exitoso",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/restaurants?page=1&limit=20&status=active",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "restaurants"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "status",
+                      "value": "active"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n      \"name\": \"Pizzería Roma\",\n      \"description\": \"Auténtica pizzería italiana con horno de leña\",\n      \"phone\": \"+34-91-123-4567\",\n      \"email\": \"info@pizzeriaroma.es\",\n      \"status\": \"active\",\n      \"location\": {\n        \"address\": \"Calle Principal 10\",\n        \"city\": \"Madrid\",\n        \"state\": \"Madrid\",\n        \"postal_code\": \"28001\",\n        \"latitude\": 40.4168,\n        \"longitude\": -3.7038\n      },\n      \"avgRating\": 4.5,\n      \"reviewCount\": 128,\n      \"createdAt\": \"2024-01-15T10:30:00Z\",\n      \"updatedAt\": \"2024-11-27T15:45:00Z\"\n    },\n    {\n      \"id\": \"660e8400-e29b-41d4-a716-446655440001\",\n      \"name\": \"Casa Española\",\n      \"description\": \"Comida típica española\",\n      \"phone\": \"+34-91-987-6543\",\n      \"email\": \"info@casaespanola.es\",\n      \"status\": \"active\",\n      \"location\": {\n        \"address\": \"Plaza Mayor 5\",\n        \"city\": \"Madrid\",\n        \"state\": \"Madrid\",\n        \"postal_code\": \"28012\",\n        \"latitude\": 40.4155,\n        \"longitude\": -3.7074\n      },\n      \"avgRating\": 4.3,\n      \"reviewCount\": 95,\n      \"createdAt\": \"2024-02-20T11:20:00Z\",\n      \"updatedAt\": \"2024-11-26T18:30:00Z\"\n    }\n  ],\n  \"pagination\": {\n    \"page\": 1,\n    \"limit\": 20,\n    \"total\": 2,\n    \"totalPages\": 1\n  },\n  \"meta\": {\n    \"timestamp\": \"2024-11-27T20:00:00Z\",\n    \"requestId\": \"req-2024-11-27-001\"\n  }\n}\n"
+            }
+          ]
+        },
+        {
+          "name": "Obtener Restaurante por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Restaurante tiene campos requeridos', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('id');",
+                  "    pm.expect(jsonData.data).to.have.property('name');",
+                  "    pm.expect(jsonData.data).to.have.property('email');",
+                  "    pm.expect(jsonData.data).to.have.property('locations');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/{{restaurantId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "restaurants",
+                "{{restaurantId}}"
+              ]
+            },
+            "description": "Obtiene los detalles completos de un restaurante específico"
+          },
+          "response": [
+            {
+              "name": "200 - Restaurante Encontrado",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/restaurants/550e8400-e29b-41d4-a716-446655440000",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "restaurants",
+                    "550e8400-e29b-41d4-a716-446655440000"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"name\": \"Pizzería Roma\",\n    \"description\": \"Auténtica pizzería italiana con horno de leña\",\n    \"phone\": \"+34-91-123-4567\",\n    \"email\": \"info@pizzeriaroma.es\",\n    \"status\": \"active\",\n    \"locations\": [\n      {\n        \"id\": \"660e8400-e29b-41d4-a716-446655440001\",\n        \"address\": \"Calle Principal 10\",\n        \"city\": \"Madrid\",\n        \"state\": \"Madrid\",\n        \"postal_code\": \"28001\",\n        \"latitude\": 40.4168,\n        \"longitude\": -3.7038\n      }\n    ],\n    \"avgRating\": 4.5,\n    \"reviewCount\": 128,\n    \"totalOrders\": 1250,\n    \"createdAt\": \"2024-01-15T10:30:00Z\",\n    \"updatedAt\": \"2024-11-27T15:45:00Z\"\n  },\n  \"meta\": {\n    \"timestamp\": \"2024-11-27T20:05:00Z\"\n  }\n}\n"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Menús",
+      "item": [
+        {
+          "name": "Listar Menús de Restaurante",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Menús son un array', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});",
+                  "",
+                  "// Guardar ID del primer menú",
+                  "if (pm.response.json().data.length > 0) {",
+                  "    pm.environment.set('menuId', pm.response.json().data[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/{{restaurantId}}/menus?status=active&includeItems=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "restaurants",
+                "{{restaurantId}}",
+                "menus"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "active",
+                  "disabled": false
+                },
+                {
+                  "key": "includeItems",
+                  "value": "true",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "Obtiene los menús activos de un restaurante con opción de incluir items"
+          },
+          "response": [
+            {
+              "name": "200 - Menús Listados",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/restaurants/550e8400-e29b-41d4-a716-446655440000/menus?status=active&includeItems=true",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "restaurants",
+                    "550e8400-e29b-41d4-a716-446655440000",
+                    "menus"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "active"
+                    },
+                    {
+                      "key": "includeItems",
+                      "value": "true"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"770e8400-e29b-41d4-a716-446655440002\",\n      \"restaurantId\": \"550e8400-e29b-41d4-a716-446655440000\",\n      \"name\": \"Menú Desayuno\",\n      \"description\": \"Desayunos especiales de 7 a 11 AM\",\n      \"status\": \"active\",\n      \"validFrom\": \"2024-11-01T00:00:00Z\",\n      \"validTo\": \"2024-12-31T23:59:59Z\",\n      \"itemCount\": 12,\n      \"items\": [\n        {\n          \"id\": \"880e8400-e29b-41d4-a716-446655440003\",\n          \"name\": \"Huevos Rancheros\",\n          \"description\": \"Huevos fritos con frijoles\",\n          \"price\": 8.50,\n          \"calories\": 450,\n          \"vegetarian\": false,\n          \"vegan\": false,\n          \"status\": \"available\"\n        },\n        {\n          \"id\": \"990e8400-e29b-41d4-a716-446655440004\",\n          \"name\": \"Tostadas Integrales\",\n          \"description\": \"Tostadas con aguacate y tomate\",\n          \"price\": 6.50,\n          \"calories\": 300,\n          \"vegetarian\": true,\n          \"vegan\": true,\n          \"status\": \"available\"\n        }\n      ],\n      \"createdAt\": \"2024-10-20T09:00:00Z\"\n    }\n  ],\n  \"meta\": {\n    \"timestamp\": \"2024-11-27T20:10:00Z\"\n  }\n}\n"
+            }
+          ]
+        },
+        {
+          "name": "Ver Items del Menú",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Items contienen información de precios', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data.length > 0) {",
+                  "        pm.expect(jsonData.data[0]).to.have.property('price');",
+                  "        pm.expect(jsonData.data[0]).to.have.property('name');",
+                  "    }",
+                  "});",
+                  "",
+                  "// Guardar primer item para crear orden",
+                  "if (pm.response.json().data.length > 0) {",
+                  "    pm.environment.set('menuItemId', pm.response.json().data[0].id);",
+                  "    pm.environment.set('itemPrice', pm.response.json().data[0].price);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/menus/{{menuId}}/items?dietary=vegetarian&sort=price&order=asc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "menus",
+                "{{menuId}}",
+                "items"
+              ],
+              "query": [
+                {
+                  "key": "dietary",
+                  "value": "vegetarian",
+                  "disabled": true
+                },
+                {
+                  "key": "sort",
+                  "value": "price",
+                  "disabled": true
+                },
+                {
+                  "key": "order",
+                  "value": "asc",
+                  "disabled": true
+                },
+                {
+                  "key": "minPrice",
+                  "value": "5",
+                  "disabled": true
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "20",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Obtiene los items de un menú con opciones de filtrado por dieta y precio"
+          },
+          "response": [
+            {
+              "name": "200 - Items del Menú",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/menus/770e8400-e29b-41d4-a716-446655440002/items",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "menus",
+                    "770e8400-e29b-41d4-a716-446655440002",
+                    "items"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": \"880e8400-e29b-41d4-a716-446655440003\",\n      \"menuId\": \"770e8400-e29b-41d4-a716-446655440002\",\n      \"name\": \"Huevos Rancheros\",\n      \"description\": \"Huevos fritos con frijoles\",\n      \"price\": 8.50,\n      \"calories\": 450,\n      \"vegetarian\": false,\n      \"vegan\": false,\n      \"status\": \"available\",\n      \"ingredients\": [\n        {\n          \"id\": \"aa0e8400-e29b-41d4-a716-446655440005\",\n          \"name\": \"Huevo\",\n          \"allergenInfo\": \"Sin alérgenos comunes\",\n          \"unit\": \"piezas\"\n        }\n      ]\n    }\n  ],\n  \"meta\": {\n    \"timestamp\": \"2024-11-27T20:15:00Z\"\n  }\n}\n"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Órdenes (Reservas)",
+      "item": [
+        {
+          "name": "Autenticar Usuario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response tiene accessToken', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('accessToken');",
+                  "});",
+                  "",
+                  "// Guardar token para las próximas solicitudes",
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set('authToken', jsonData.data.accessToken);",
+                  "pm.environment.set('customerId', jsonData.data.user.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"cliente@example.com\",\n  \"password\": \"SecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Autentica un usuario y obtiene un token JWT para autorización"
+          },
+          "response": [
+            {
+              "name": "200 - Autenticación Exitosa",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"cliente@example.com\",\n  \"password\": \"SecurePassword123!\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjYzBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDA2MDYiLCJlbWFpbCI6ImNsaWVudGVAZXhhbXBsZS5jb20iLCJyb2xlIjoiY3VzdG9tZXIiLCJpYXQiOjE3MzI3MDA5NjAsImV4cCI6MTczMjcwNDU2MH0.SIGNATURE\",\n    \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjYzBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDA2MDYiLCJpYXQiOjE3MzI3MDA5NjAsImV4cCI6MTczMzMwNTc2MH0.SIGNATURE\",\n    \"expiresIn\": 3600,\n    \"user\": {\n      \"id\": \"cc0e8400-e29b-41d4-a716-446655440606\",\n      \"email\": \"cliente@example.com\",\n      \"firstName\": \"Juan\",\n      \"lastName\": \"Pérez\",\n      \"role\": \"customer\"\n    }\n  },\n  \"meta\": {\n    \"timestamp\": \"2024-11-27T20:20:00Z\"\n  }\n}\n"
+            }
+          ]
+        },
+        {
+          "name": "Crear Orden (Reserva)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Orden creada con estado pending', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('id');",
+                  "    pm.expect(jsonData.data.orderStatus).to.equal('pending');",
+                  "});",
+                  "",
+                  "pm.test('Cálculo de montos es correcto', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.totalAmount).to.be.greaterThan(0);",
+                  "    pm.expect(jsonData.data.finalAmount).to.equal(",
+                  "        jsonData.data.totalAmount + jsonData.data.taxAmount - jsonData.data.discountAmount",
+                  "    );",
+                  "});",
+                  "",
+                  "// Guardar ID de orden para actualizaciones",
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set('orderId', jsonData.data.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantId\": \"{{restaurantId}}\",\n  \"deliveryType\": \"delivery\",\n  \"items\": [\n    {\n      \"menuItemId\": \"{{menuItemId}}\",\n      \"quantity\": 2,\n      \"specialInstructions\": \"Sin cebolla\"\n    }\n  ],\n  \"paymentMethod\": \"credit_card\",\n  \"discountCode\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ]
+            },
+            "description": "Crea una nueva orden con items del menú, método de pago y tipo de entrega"
+          },
+          "response": [
+            {
+              "name": "201 - Orden Creada",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer TOKEN",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"restaurantId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"deliveryType\": \"delivery\",\n  \"items\": [\n    {\n      \"menuItemId\": \"880e8400-e29b-41d4-a716-446655440003\",\n      \"quantity\": 2,\n      \"specialInstructions\": \"Sin cebolla\"\n    }\n  ],\n  \"paymentMethod\": \"credit_card\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/orders",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "orders"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"dd0e8400-e29b-41d4-a716-446655440007\",\n    \"restaurantId\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"customerId\": \"cc0e8400-e29b-41d4-a716-446655440606\",\n    \"orderDate\": \"2024-11-27T20:25:00Z\",\n    \"totalAmount\": 17.00,\n    \"taxAmount\": 3.57,\n    \"discountAmount\": 0,\n    \"finalAmount\": 20.57,\n    \"paymentMethod\": \"credit_card\",\n    \"orderStatus\": \"pending\",\n    \"deliveryType\": \"delivery\",\n    \"items\": [\n      {\n        \"id\": \"ee0e8400-e29b-41d4-a716-446655440008\",\n        \"menuItemId\": \"880e8400-e29b-41d4-a716-446655440003\",\n        \"name\": \"Huevos Rancheros\",\n        \"quantity\": 2,\n        \"unitPrice\": 8.50,\n        \"subtotal\": 17.00,\n        \"specialInstructions\": \"Sin cebolla\"\n      }\n    ],\n    \"estimatedDelivery\": \"2024-11-27T21:25:00Z\",\n    \"createdAt\": \"2024-11-27T20:25:00Z\"\n  },\n  \"meta\": {\n    \"timestamp\": \"2024-11-27T20:25:00Z\",\n    \"requestId\": \"req-2024-11-27-003\"\n  }\n}\n"
+            }
+          ]
+        },
+        {
+          "name": "Obtener Orden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Orden contiene items y asignaciones', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('items');",
+                  "    pm.expect(jsonData.data).to.have.property('assignments');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{orderId}}"
+              ]
+            },
+            "description": "Obtiene los detalles completos de una orden específica"
+          },
+          "response": [
+            {
+              "name": "200 - Orden Obtenida",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer TOKEN",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/orders/dd0e8400-e29b-41d4-a716-446655440007",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "orders",
+                    "dd0e8400-e29b-41d4-a716-446655440007"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"dd0e8400-e29b-41d4-a716-446655440007\",\n    \"restaurantId\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"customerId\": \"cc0e8400-e29b-41d4-a716-446655440606\",\n    \"orderDate\": \"2024-11-27T20:25:00Z\",\n    \"totalAmount\": 17.00,\n    \"taxAmount\": 3.57,\n    \"discountAmount\": 0,\n    \"finalAmount\": 20.57,\n    \"orderStatus\": \"confirmed\",\n    \"deliveryType\": \"delivery\",\n    \"items\": [\n      {\n        \"id\": \"ee0e8400-e29b-41d4-a716-446655440008\",\n        \"name\": \"Huevos Rancheros\",\n        \"quantity\": 2,\n        \"unitPrice\": 8.50,\n        \"subtotal\": 17.00,\n        \"specialInstructions\": \"Sin cebolla\"\n      }\n    ],\n    \"estimatedDelivery\": \"2024-11-27T21:25:00Z\",\n    \"assignments\": [\n      {\n        \"id\": \"ff0e8400-e29b-41d4-a716-446655440009\",\n        \"employeeId\": \"bb0e8400-e29b-41d4-a716-446655440005\",\n        \"employeeName\": \"Juan García\",\n        \"role\": \"chef\",\n        \"assignedAt\": \"2024-11-27T20:27:00Z\",\n        \"completedAt\": null\n      }\n    ],\n    \"createdAt\": \"2024-11-27T20:25:00Z\",\n    \"updatedAt\": \"2024-11-27T20:27:00Z\"\n  },\n  \"meta\": {\n    \"timestamp\": \"2024-11-27T20:30:00Z\"\n  }\n}\n"
+            }
+          ]
+        },
+        {
+          "name": "Actualizar Estado de Orden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Estado de orden fue actualizado', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.orderStatus).to.equal('preparing');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"preparing\",\n  \"estimatedCompletionTime\": \"2024-11-27T21:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{orderId}}",
+                "status"
+              ]
+            },
+            "description": "Actualiza el estado de una orden (pending → confirmed → preparing → ready → delivered)"
+          },
+          "response": [
+            {
+              "name": "200 - Estado Actualizado",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer TOKEN",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"preparing\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/orders/dd0e8400-e29b-41d4-a716-446655440007/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "orders",
+                    "dd0e8400-e29b-41d4-a716-446655440007",
+                    "status"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": \"dd0e8400-e29b-41d4-a716-446655440007\",\n    \"orderStatus\": \"preparing\",\n    \"estimatedCompletionTime\": \"2024-11-27T21:00:00Z\",\n    \"updatedAt\": \"2024-11-27T20:35:00Z\"\n  },\n  \"meta\": {\n    \"timestamp\": \"2024-11-27T20:35:00Z\"\n  }\n}\n"
+            }
+          ]
+        },
+        {
+          "name": "Cancelar Orden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Orden fue cancelada', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.orderStatus).to.equal('cancelled');",
+                  "});",
+                  "",
+                  "pm.test('Reembolso fue procesado', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('refundAmount');",
+                  "    pm.expect(jsonData.data.refundStatus).to.equal('processed');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Cambié de opinión\",\n  \"refundMethod\": \"original_payment\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{orderId}}",
+                "cancel"
+              ]
+            },
+            "description": "Cancela una orden y procesa el reembolso. Solo permitido en estados pending o confirmed."
+          },
+          "response": [
+            {
+              "name": "200 - Orden Cancelada",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer TOKEN",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"Cambié de opinión\",\n  \"refundMethod\": \"original_payment\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/orders/dd0e8400-e29b-41d4-a716-446655440007/cancel",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "orders",
+                    "dd0e8400-e29b-41d4-a716-446655440007",\n                    \"cancel\"\n                  ]\n                }\n              },\n              \"status\": \"OK\",\n              \"code\": 200,\n              \"header\": [\n                {\n                  \"key\": \"Content-Type\",\n                  \"value\": \"application/json\"\n                }\n              ],\n              \"body\": \"{\n  \\\"success\\\": true,\n  \\\"data\\\": {\n    \\\"id\\\": \\\"dd0e8400-e29b-41d4-a716-446655440007\\\",\n    \\\"orderStatus\\\": \\\"cancelled\\\",\n    \\\"refundAmount\\\": 20.57,\n    \\\"refundStatus\\\": \\\"processed\\\",\n    \\\"cancelledAt\\\": \\\"2024-11-27T20:40:00Z\\\",\n    \\\"updatedAt\\\": \\\"2024-11-27T20:40:00Z\\\"\n  },\n  \\\"meta\\\": {\n    \\\"timestamp\\\": \\\"2024-11-27T20:40:00Z\\\"\n  }\n}\n\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Reseñas",
+      "item": [
+        {
+          "name": "Crear Reseña",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Reseña creada con rating válido', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.rating).to.be.within(1, 5);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"title\": \"Excelente comida\",\n  \"comment\": \"La pizzería es increíble. Pizzas deliciosas y servicio rápido.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/{{restaurantId}}/reviews",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "restaurants",
+                "{{restaurantId}}",
+                "reviews"
+              ]
+            },
+            "description": "Crea una reseña para un restaurante después de una orden"
+          },
+          "response": [
+            {
+              "name": "201 - Reseña Creada",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer TOKEN",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"rating\": 5,\n  \"title\": \"Excelente comida\",\n  \"comment\": \"La pizzería es increíble. Pizzas deliciosas y servicio rápido.\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/restaurants/550e8400-e29b-41d4-a716-446655440000/reviews",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "restaurants",
+                    "550e8400-e29b-41d4-a716-446655440000",\n                    \"reviews\"\n                  ]\n                }\n              },\n              \"status\": \"Created\",\n              \"code\": 201,\n              \"header\": [\n                {\n                  \"key\": \"Content-Type\",\n                  \"value\": \"application/json\"\n                }\n              ],\n              \"body\": \"{\n  \\\"success\\\": true,\n  \\\"data\\\": {\n    \\\"id\\\": \\\"gg0e8400-e29b-41d4-a716-446655440010\\\",\n    \\\"restaurantId\\\": \\\"550e8400-e29b-41d4-a716-446655440000\\\",\n    \\\"customerId\\\": \\\"cc0e8400-e29b-41d4-a716-446655440606\\\",\n    \\\"rating\\\": 5,\n    \\\"title\\\": \\\"Excelente comida\\\",\n    \\\"comment\\\": \\\"La pizzería es increíble. Pizzas deliciosas y servicio rápido.\\\",\n    \\\"createdAt\\\": \\\"2024-11-27T20:45:00Z\\\"\n  },\n  \\\"meta\\\": {\n    \\\"timestamp\\\": \\\"2024-11-27T20:45:00Z\\\"\n  }\n}\n\""
+            }
+          ]
+        },
+        {
+          "name": "Listar Reseñas de Restaurante",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code es 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response incluye estadísticas', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('analytics');",
+                  "    pm.expect(jsonData.analytics).to.have.property('averageRating');",
+                  "    pm.expect(jsonData.analytics).to.have.property('ratingDistribution');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/{{restaurantId}}/reviews?rating=5&page=1&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "restaurants",
+                "{{restaurantId}}",
+                "reviews"
+              ],
+              "query": [
+                {
+                  "key": "rating",
+                  "value": "5",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "disabled": false
+                },
+                {
+                  "key": "sortBy",
+                  "value": "created_at",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Obtiene las reseñas de un restaurante con estadísticas de rating"
+          },
+          "response": [
+            {
+              "name": "200 - Reseñas Listadas",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/restaurants/550e8400-e29b-41d4-a716-446655440000/reviews?page=1&limit=10",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "restaurants",\n                    \"550e8400-e29b-41d4-a716-446655440000\",\n                    \"reviews\"\n                  ],\n                  \"query\": [\n                    {\n                      \"key\": \"page\",\n                      \"value\": \"1\"\n                    },\n                    {\n                      \"key\": \"limit\",\n                      \"value\": \"10\"\n                    }\n                  ]\n                }\n              },\n              \"status\": \"OK\",\n              \"code\": 200,\n              \"header\": [\n                {\n                  \"key\": \"Content-Type\",\n                  \"value\": \"application/json\"\n                }\n              ],\n              \"body\": \"{\n  \\\"success\\\": true,\n  \\\"data\\\": [\n    {\n      \\\"id\\\": \\\"gg0e8400-e29b-41d4-a716-446655440010\\\",\n      \\\"customerId\\\": \\\"cc0e8400-e29b-41d4-a716-446655440606\\\",\n      \\\"customerName\\\": \\\"María López\\\",\n      \\\"rating\\\": 5,\n      \\\"title\\\": \\\"Excelente comida\\\",\n      \\\"comment\\\": \\\"La pizzería es increíble. Pizzas deliciosas y servicio rápido.\\\",\n      \\\"createdAt\\\": \\\"2024-11-27T20:45:00Z\\\"\n    },\n    {\n      \\\"id\\\": \\\"hh0e8400-e29b-41d4-a716-446655440011\\\",\n      \\\"customerId\\\": \\\"dd0e8400-e29b-41d4-a716-446655440707\\\",\n      \\\"customerName\\\": \\\"Carlos González\\\",\n      \\\"rating\\\": 4,\n      \\\"title\\\": \\\"Muy buen servicio\\\",\n      \\\"comment\\\": \\\"Buena comida, un poco esperé más en el tiempo de entrega.\\\",\n      \\\"createdAt\\\": \\\"2024-11-26T19:30:00Z\\\"\n    }\n  ],\n  \\\"pagination\\\": {\n    \\\"page\\\": 1,\n    \\\"limit\\\": 10,\n    \\\"total\\\": 128,\n    \\\"totalPages\\\": 13\n  },\n  \\\"analytics\\\": {\n    \\\"averageRating\\\": 4.5,\n    \\\"totalReviews\\\": 128,\n    \\\"ratingDistribution\\\": {\n      \\\"5\\\": 75,\n      \\\"4\\\": 35,\n      \\\"3\\\": 12,\n      \\\"2\\\": 4,\n      \\\"1\\\": 2\n    }\n  },\n  \\\"meta\\\": {\n    \\\"timestamp\\\": \\\"2024-11-27T20:50:00Z\\\"\n  }\n}\n\""
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Variables globales de prequisito",
+          "// Se ejecutan antes de cada request"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/v1",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "restaurantId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "customerId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "menuId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "menuItemId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

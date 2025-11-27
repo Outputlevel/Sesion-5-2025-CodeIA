@@ -1,0 +1,392 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // Para Prisma con PostgreSQL, la conexión se configura via DATABASE_URL
+  // Ejemplo: postgresql://user:password@localhost:5432/restaurants
+}
+
+// ============================================================================
+// ENUMS - Tipos de datos enumerados
+// ============================================================================
+
+enum RestaurantStatus {
+  active
+  inactive
+  suspended
+}
+
+enum MenuStatus {
+  active
+  draft
+  archived
+}
+
+enum MenuItemStatus {
+  available
+  unavailable
+  discontinued
+}
+
+enum EmployeeRole {
+  admin
+  chef
+  mesero
+  cajero
+  delivery
+}
+
+enum EmploymentStatus {
+  active
+  on_leave
+  terminated
+}
+
+enum CustomerSubscriptionStatus {
+  active
+  inactive
+  suspended
+}
+
+enum OrderStatus {
+  pending
+  confirmed
+  preparing
+  ready
+  delivered
+  cancelled
+}
+
+enum PaymentMethod {
+  credit_card
+  debit_card
+  cash
+  digital_wallet
+}
+
+enum DeliveryType {
+  dine_in
+  takeout
+  delivery
+}
+
+enum OrderAssignmentRole {
+  chef
+  mesero
+  delivery
+}
+
+// ============================================================================
+// MODELS - Entidades principales
+// ============================================================================
+
+/// Restaurante - Entidad central del sistema
+model Restaurant {
+  id            String    @id @default(uuid())
+  name          String    @unique
+  description   String?
+  phone         String?
+  email         String
+  status        RestaurantStatus @default(active)
+  
+  // Relaciones
+  locations     Location[]
+  menus         Menu[]
+  employees     Employee[]
+  orders        Order[]
+  reviews       Review[]
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([status])
+  @@index([name])
+  @@fulltext([name, description])
+}
+
+/// Ubicación/Sucursal del restaurante
+model Location {
+  id            String    @id @default(uuid())
+  restaurantId  String
+  address       String
+  city          String
+  state         String
+  postal_code   String
+  latitude      Float?
+  longitude     Float?
+  
+  // Relación
+  restaurant    Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+
+  @@index([restaurantId])
+  @@index([city, state])
+  @@index([latitude, longitude])
+}
+
+/// Menú del restaurante (versionado)
+model Menu {
+  id            String    @id @default(uuid())
+  restaurantId  String
+  name          String
+  description   String?
+  validFrom     DateTime
+  validTo       DateTime?
+  status        MenuStatus @default(active)
+  
+  // Relaciones
+  restaurant    Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  items         MenuItem[]
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([restaurantId, name, validFrom])
+  @@index([restaurantId])
+  @@index([validFrom, validTo])
+  @@index([status])
+}
+
+/// Artículo/Plato del menú
+model MenuItem {
+  id            String    @id @default(uuid())
+  menuId        String
+  name          String
+  description   String?
+  price         Decimal   @db.Decimal(10, 2)
+  calories      Int?
+  vegetarian    Boolean   @default(false)
+  vegan         Boolean   @default(false)
+  status        MenuItemStatus @default(available)
+  
+  // Relaciones
+  menu          Menu      @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  ingredients   Recipe[]
+  orderItems    OrderItem[]
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([menuId])
+  @@index([vegetarian, vegan])
+  @@index([status])
+  @@fulltext([name, description])
+}
+
+/// Ingrediente (tabla maestra compartida)
+model Ingredient {
+  id            String    @id @default(uuid())
+  name          String    @unique
+  allergenInfo  String?
+  unit          String?
+  
+  // Relaciones
+  recipes       Recipe[]
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@fulltext([name])
+}
+
+/// Receta - Relación M:N entre MenuItem e Ingredient
+model Recipe {
+  id            String    @id @default(uuid())
+  menuItemId    String
+  ingredientId  String
+  quantity      Decimal   @db.Decimal(10, 2)
+  
+  // Relaciones
+  menuItem      MenuItem  @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  ingredient    Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([menuItemId, ingredientId])
+  @@index([menuItemId])
+  @@index([ingredientId])
+}
+
+/// Empleado del restaurante
+model Employee {
+  id                  String    @id @default(uuid())
+  restaurantId        String
+  email               String    @unique
+  firstName           String
+  lastName            String
+  role                EmployeeRole
+  phone               String?
+  hireDate            DateTime
+  employmentStatus    EmploymentStatus @default(active)
+  
+  // Relaciones
+  restaurant          Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  assignments         OrderAssignment[]
+  
+  // Timestamps
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@unique([restaurantId, email])
+  @@index([restaurantId, role])
+  @@index([email])
+  @@index([employmentStatus])
+}
+
+/// Cliente/Usuario del sistema
+model Customer {
+  id                  String    @id @default(uuid())
+  email               String    @unique
+  password            String?   // Hash de contraseña
+  firstName           String
+  lastName            String
+  phone               String?
+  loyaltyNumber       String?   @unique
+  subscriptionStatus  CustomerSubscriptionStatus @default(active)
+  
+  // Relaciones
+  orders              Order[]
+  reviews             Review[]
+  
+  // Timestamps
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([email])
+  @@index([loyaltyNumber])
+  @@index([subscriptionStatus])
+}
+
+/// Orden/Pedido
+model Order {
+  id              String    @id @default(uuid())
+  restaurantId    String
+  customerId      String
+  orderDate       DateTime  @default(now())
+  totalAmount     Decimal   @db.Decimal(10, 2)
+  taxAmount       Decimal   @default(0) @db.Decimal(10, 2)
+  discountAmount  Decimal   @default(0) @db.Decimal(10, 2)
+  finalAmount     Decimal   @db.Decimal(10, 2)
+  paymentMethod   PaymentMethod?
+  orderStatus     OrderStatus @default(pending)
+  deliveryType    DeliveryType?
+  estimatedDeliveryTime DateTime?
+  
+  // Relaciones
+  restaurant      Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Restrict)
+  customer        Customer  @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  items           OrderItem[]
+  assignments     OrderAssignment[]
+  
+  // Timestamps
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([restaurantId])
+  @@index([customerId])
+  @@index([orderDate])
+  @@index([orderStatus])
+  @@index([deliveryType])
+  @@index([customerId, orderDate])
+}
+
+/// Artículo de la orden
+model OrderItem {
+  id                    String    @id @default(uuid())
+  orderId               String
+  menuItemId            String
+  quantity              Int
+  unitPrice             Decimal   @db.Decimal(10, 2)
+  specialInstructions   String?
+  
+  // Relaciones
+  order                 Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem              MenuItem  @relation(fields: [menuItemId], references: [id], onDelete: Restrict)
+  
+  // Timestamps
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([orderId])
+  @@index([menuItemId])
+}
+
+/// Asignación de empleado a orden
+model OrderAssignment {
+  id            String    @id @default(uuid())
+  orderId       String
+  employeeId    String
+  role          OrderAssignmentRole
+  assignedAt    DateTime  @default(now())
+  completedAt   DateTime?
+  
+  // Relaciones
+  order         Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  employee      Employee  @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([orderId])
+  @@index([employeeId])
+  @@index([role])
+  @@unique([orderId, employeeId, role])
+}
+
+/// Reseña/Calificación del restaurante
+model Review {
+  id            String    @id @default(uuid())
+  customerId    String
+  restaurantId  String
+  rating        Int       // 1-5
+  title         String?
+  comment       String?
+  
+  // Relaciones
+  customer      Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  restaurant    Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([customerId, restaurantId, createdAt])
+  @@index([restaurantId])
+  @@index([customerId])
+  @@index([createdAt])
+  @@index([rating])
+}
+
+// ============================================================================
+// INDEXES ADICIONALES PARA PERFORMANCE
+// ============================================================================
+
+// Los índices principales ya están definidos en los modelos
+// Aquí se pueden agregar índices compuestos adicionales si es necesario
+
+// Índice para búsquedas geográficas (si se habilita PostGIS)
+// model Location {
+//   @@index([latitude, longitude])
+// }
+
+// Índice para búsquedas fulltext (PostgreSQL)
+// Usado implícitamente con @@fulltext en Restaurant y MenuItem
+
+// Para búsquedas de texto fuzzy, considerar:
+// - Usar pg_trgm extension en PostgreSQL
+// - O implementar búsqueda en aplicación con herramientas como Meilisearch
